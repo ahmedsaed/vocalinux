@@ -92,6 +92,10 @@ while [[ $# -gt 0 ]]; do
             echo "  --tag=TAG        Install specific release tag (default: v0.3.0-alpha)"
             echo "  -y, --yes        Non-interactive mode (accept defaults)"
             echo "  --help           Show this help message"
+            echo ""
+            echo "Environment Variables:"
+            echo "  PYTHON_VERSION   Python command to use (e.g., python3.11, /usr/bin/python3.10)"
+            echo "                   If not set, defaults to 'python3'"
             exit 0
             ;;
         *)
@@ -542,20 +546,28 @@ mkdir -p "$DATA_DIR/models"
 mkdir -p "$DESKTOP_DIR"
 mkdir -p "$ICON_DIR"
 
+# Determine Python command to use
+# If PYTHON_VERSION env variable is set, use it; otherwise default to python3
+if [[ -n "${PYTHON_VERSION}" ]]; then
+    PYTHON_CMD="${PYTHON_VERSION}"
+    print_info "Using Python command from PYTHON_VERSION environment variable: $PYTHON_CMD"
+else
+    PYTHON_CMD="python3"
+fi
+
 # Check Python version
 check_python_version() {
     local MIN_VERSION="3.8"
-    local PYTHON_CMD="python3"
 
-    # Check if python3 command exists
-    if ! command_exists python3; then
-        print_error "Python 3 is not installed or not in PATH"
+    # Check if python command exists
+    if ! command_exists "$PYTHON_CMD"; then
+        print_error "Python command '$PYTHON_CMD' is not installed or not in PATH"
         return 1
     fi
 
     # Get Python version
-    local PY_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-    print_info "Detected Python version: $PY_VERSION"
+    local PY_VERSION=$($PYTHON_CMD -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+    print_info "Detected Python version: $PY_VERSION (using $PYTHON_CMD)"
 
     # Compare versions
     if [[ $(echo -e "$PY_VERSION\n$MIN_VERSION" | sort -V | head -n1) == "$MIN_VERSION" || "$PY_VERSION" == "$MIN_VERSION" ]]; then
@@ -595,7 +607,7 @@ setup_virtual_environment() {
     # Create virtual environment
     # Note: We don't use --system-site-packages to avoid conflicts with system packages
     # that may be incompatible with Python 3.12+ (e.g., old coverage versions)
-    python3 -m venv "$VENV_DIR" || {
+    $PYTHON_CMD -m venv "$VENV_DIR" || {
         print_error "Failed to create virtual environment. Please check your Python installation."
         exit 1
     }
