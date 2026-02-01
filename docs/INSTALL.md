@@ -64,26 +64,6 @@ For contributing or development work:
 
 This installs additional tools: pytest, black, isort, flake8, pre-commit.
 
-### Using a Specific Python Version
-
-By default, the installer uses the `python3` command. To use a specific Python version:
-
-```bash
-# Use a specific Python version (e.g., python3.11)
-PYTHON_VERSION=python3.11 ./install.sh
-
-# Or with full path
-PYTHON_VERSION=/usr/bin/python3.10 ./install.sh
-
-# Works with one-liner installation too
-curl -fsSL https://raw.githubusercontent.com/jatinkrmalik/vocalinux/main/install.sh | PYTHON_VERSION=python3.11 bash -s -- --tag=v0.4.1-alpha
-```
-
-**Requirements:**
-- The specified Python version must be 3.8 or newer
-- The command must be available in your PATH or specified with full path
-- If the Python version is not found, installation will fail with an error
-
 ### All Installer Options
 
 ```bash
@@ -98,10 +78,6 @@ Options:
   --no-whisper     Skip Whisper installation (faster, VOSK only)
   -y, --yes        Non-interactive mode (accept defaults)
   --help           Show this help message
-
-Environment Variables:
-  PYTHON_VERSION   Python command to use (e.g., python3.11, /usr/bin/python3.10)
-                   If not set, defaults to 'python3'
 ```
 
 ## What the Installer Does
